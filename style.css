@@ -1,0 +1,90 @@
+/* 기본 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 0.87rem;
+}
+
+/* Base */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Hahmlet', serif;
+}
+
+a {
+  text-decoration: underline;
+  text-decoration-color: rgb(0, 0, 0);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Layout */
+#layout {
+  height: 100%;
+  position: relative;
+}
+
+#graphPane {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+}
+
+#graph {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Note pane — 오버레이 (alert 스타일) */
+#notePane.hidden {
+  display: none;
+}
+
+#notePane {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgb(76, 0, 131) ;
+  z-index: 10;
+}
+
+.note-content {
+  max-width: 24ch;
+  line-height: 1.7;
+  font-size: 0.85rem;
+  text-align: left;
+  hyphens: none;
+  border: 1.5px solid rgb(76, 0, 131);
+  padding: 0.8rem;
+  background: #ffffff;
+  overflow: auto;
+  max-height: 80vh;
+}
+
+#noteTitle {
+  display: none;
+}
+
+#noteContent {
+  line-height: 1.7;
+}
+
+#noteContent a {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+/* 태그로 감싼 주석/각주 구간 (::footnotes:: 이하) */
+#noteContent .footnotes {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  font-size: 14px;
+  color: rgb(157, 0, 255);
+  line-height: 1.6;
+}
