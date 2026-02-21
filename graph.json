@@ -1,18 +1,18 @@
 {
   "nodes": [
-    { "id": "003", "title": "경험의 알을 품고 있는 꿈의 새", "path": "notes/003.md" },
-    { "id": "002", "title": "아감벤은 다음과 같이 질문한다", "path": "notes/002.md" },
-    { "id": "001", "title": "8월 5일에 태어났으며...", "path": "notes/001.md" },
-    { "id": "004", "title": "긍정성의 과잉", "path": "notes/004.md" },
-    { "id": "005", "title": "그리고 서술자가 있습니다.", "path": "notes/005.md" },
-    { "id": "006", "title": "다정함에 관하여", "path": "notes/006.md" },
-    { "id": "007", "title": "당당한 지성과 견줄 데 없는 도덕성", "path": "notes/007.md" },
-    { "id": "008", "title": "모든 이미지는 하나의 보는 방식", "path": "notes/008.md" },
-    { "id": "009", "title": "산책하는 마음으로 보기", "path": "notes/009.md" },
-    { "id": "010", "title": "부풀리기", "path": "notes/010.md" },
-    { "id": "011", "title": "수면의 과학", "path": "notes/011.md" },
-    { "id": "012", "title": "헤르메스의 과업", "path": "notes/012.md" },
-    { "id": "013", "title": "어디에나", "path": "notes/013.md" }
+    { "id": "003", "title": "3. 경험의 알을 품고 있는 꿈의 새", "path": "notes/003.md" },
+    { "id": "002", "title": "2. 아감벤은 다음과 같이 질문한다", "path": "notes/002.md" },
+    { "id": "001", "title": "1. 8월 5일에 태어났으며...", "path": "notes/001.md" },
+    { "id": "004", "title": "4. 긍정성의 과잉", "path": "notes/004.md" },
+    { "id": "005", "title": "5. 그리고 서술자가 있습니다.", "path": "notes/005.md" },
+    { "id": "006", "title": "6. 다정함에 관하여", "path": "notes/006.md" },
+    { "id": "007", "title": "7. 당당한 지성과 견줄 데 없는 도덕성", "path": "notes/007.md" },
+    { "id": "008", "title": "8. 모든 이미지는 하나의 보는 방식", "path": "notes/008.md" },
+    { "id": "009", "title": "9. 산책하는 마음으로 보기", "path": "notes/009.md" },
+    { "id": "010", "title": "10. 부풀리기", "path": "notes/010.md" },
+    { "id": "011", "title": "11. 수면의 과학", "path": "notes/011.md" },
+    { "id": "012", "title": "12. 헤르메스의 과업", "path": "notes/012.md" },
+    { "id": "013", "title": "13. 어디에나", "path": "notes/013.md" }
 
   ],
   "links": [
