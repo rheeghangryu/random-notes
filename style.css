@@ -22,6 +22,20 @@ a {
 }
 
 /* Layout */
+.graph-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 0.6rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(76, 0, 131, 0.2);
+  font-size: 0.85rem;
+}
+
+.graph-nav a {
+  color: rgb(76, 0, 131);
+}
+
 #layout {
   height: 100%;
   position: relative;
@@ -31,6 +45,7 @@ a {
   position: absolute;
   inset: 0;
   background: #ffffff;
+  overflow-y: auto;
 }
 
 #graph {

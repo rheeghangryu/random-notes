@@ -1,0 +1,62 @@
+/* 목록 뷰: 순번 1열 정렬 */
+.list-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 0.6rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(76, 0, 131, 0.2);
+  font-size: 0.85rem;
+}
+
+.list-nav a {
+  color: rgb(76, 0, 131);
+}
+
+#listContainer {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+#listContainer.list-loading {
+  padding: 2rem;
+  text-align: center;
+  color: rgb(157, 0, 255);
+}
+
+.list-note {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(76, 0, 131, 0.15);
+  scroll-margin-top: 2.5rem;
+}
+
+.list-note:last-child {
+  border-bottom: none;
+}
+
+.list-note-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(76, 0, 131);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.list-note-body {
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.list-note-body a {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.list-note-body .footnotes {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  font-size: 0.8rem;
+  color: rgb(157, 0, 255);
+  line-height: 1.6;
+}
