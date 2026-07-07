@@ -9,11 +9,9 @@ let width, height;
 function resize() {
   width = graphPane.clientWidth;
   height = graphPane.clientHeight;
+  svg.attr("viewBox", `0 0 ${width} ${height}`);
 }
-window.addEventListener("resize", () => {
-  resize();
-  if (window.__graphData) renderGraph(window.__graphData);
-});
+window.addEventListener("resize", resize);
 resize();
 
 async function loadGraph() {
@@ -30,7 +28,17 @@ async function loadNote(path) {
     return `[${text}](#note:${target.trim()})`;
   });
 
-  // 본문 중간: ::footnotes:: ... ::/footnotes:: → .footnotes 스타일 (list.css / #noteContent .footnotes)
+  // 윗첨자: ^텍스트^ → <sup>텍스트</sup> (예: 페이지 표기 92^p^, 각주 표시 지성^[1]^)
+  md = md.replace(/\^([^\^\n]+)\^/g, (_, text) => `<sup>${text}</sup>`);
+
+  // 본문/인용 사이에 끼워 넣는 태그들: ::이름:: ... ::/이름:: → <div class="이름">
+  // (STYLES.md 참고 — 새 스타일을 추가하려면 이 목록에 태그 이름만 더하면 됨)
+  for (const tag of ["source", "rheeghang"]) {
+    const re = new RegExp(`(?:^|\\n)::${tag}::\\n([\\s\\S]*?)\\n::/${tag}::`, "g");
+    md = md.replace(re, (_, inner) => `\n<div class="${tag}">` + marked.parse(inner.trim()) + "</div>");
+  }
+
+  // 본문 중간: ::footnotes:: ... ::/footnotes:: → .footnotes 스타일 (#noteContent .footnotes)
   md = md.replace(
     /(?:^|\n)::footnotes::\n([\s\S]*?)\n::\/footnotes::/g,
     (_, inner) => "\n<div class=\"footnotes\">" + marked.parse(inner.trim()) + "</div>"
@@ -83,10 +91,10 @@ function attachNoteLinkHandler(nodesById) {
 }
 
 function renderGraph(data) {
-  // 순번(id)으로 정렬하여 1열 배치. (그래프/force 레이아웃으로 되돌리려면 아래 주석 참고)
-  const nodes = data.nodes
-    .map(d => ({ ...d }))
-    .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+  const nodes = data.nodes.map(d => ({ ...d }));
+
+  const hub = { id: "__hub__", title: "", path: null, isHub: true, width: 20, height: 20 };
+  nodes.unshift(hub);
 
   const nodesById = new Map(nodes.map(n => [n.id, n]));
   attachNoteLinkHandler(nodesById);
@@ -96,15 +104,14 @@ function renderGraph(data) {
 
   svg.call(
     d3.zoom()
-      .scaleExtent([0.5, 3])
+      .scaleExtent([0.2, 3])
       .on("zoom", (event) => g.attr("transform", event.transform))
   );
 
-  const pad = 8;
-  const fontSize = 14;
-  const gap = 16;
-  const marginTop = 24;
-  const centerX = width / 2;
+  const linkG = g.append("g")
+    .attr("stroke", "rgb(157, 0, 255)")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "5, 5");
 
   const node = g.append("g")
     .selectAll("g")
@@ -112,61 +119,87 @@ function renderGraph(data) {
     .join("g")
     .style("cursor", "pointer");
 
-  // 노드: 제목 텍스트를 테두리 있는 사각형 박스로 (클릭 시 페이지/노트로 이동)
+  // 노드: 허브는 원, 나머지는 제목 텍스트를 테두리 있는 박스 안에
+  const pad = 8;
+  const fontSize = 14;
+
   node.each(function (d) {
     const gEl = d3.select(this);
-    const text = gEl.append("text")
-      .text(d.title)
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "middle")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("fill", "rgb(157, 0, 255)")
-      .attr("font-size", fontSize);
 
-    const bbox = text.node().getBBox();
-    gEl.insert("rect", "text")
-      .attr("x", bbox.x - pad)
-      .attr("y", bbox.y - pad)
-      .attr("width", bbox.width + pad * 2)
-      .attr("height", bbox.height + pad * 2)
-      .attr("fill", "none")
-      .attr("stroke", "rgb(157, 0, 255)")
-      .attr("stroke-width", 1.5);
+    if (d.isHub) {
+      gEl.append("circle")
+        .attr("r", 10)
+        .attr("fill", "rgb(76, 0, 131)");
+    } else {
+      const text = gEl.append("text")
+        .text(d.title)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("fill", "rgb(157, 0, 255)")
+        .attr("font-size", fontSize);
 
-    d.width = bbox.width + pad * 2;
-    d.height = bbox.height + pad * 2;
+      const bbox = text.node().getBBox();
+      gEl.insert("rect", "text")
+        .attr("x", bbox.x - pad)
+        .attr("y", bbox.y - pad)
+        .attr("width", bbox.width + pad * 2)
+        .attr("height", bbox.height + pad * 2)
+        .attr("fill", "none")
+        .attr("stroke", "rgb(157, 0, 255)")
+        .attr("stroke-width", 1.5);
+
+      d.width = bbox.width + pad * 2;
+      d.height = bbox.height + pad * 2;
+    }
   });
 
-  // 1열 배치: 위에서부터 순번대로
-  let y = marginTop;
-  nodes.forEach((d) => {
-    d.x = centerX;
-    d.y = y + d.height / 2;
-    y += d.height + gap;
-  });
+  // 노드 크기를 먼저 잰 다음 거리를 정해야, 글자가 긴 노트가 좁은 거리에 눌려
+  // 충돌(collide) 힘과 링크 힘이 서로 못 이기고 계속 떠는 문제가 생기지 않음.
+  // collide 반경(자기 자신 + 허브)보다 항상 더 크게, 그 위에 무작위 여유를 얹어 거리를 다양화.
+  const EXTRA_MIN = 20;
+  const EXTRA_MAX = 90;
+  const collideRadius = (d) => Math.max(d.width, d.height) / 2 + 12;
+  const links = nodes
+    .filter(n => n.id !== hub.id)
+    .map(n => {
+      const clearance = collideRadius(n) + collideRadius(hub);
+      const distance = clearance + EXTRA_MIN + Math.random() * (EXTRA_MAX - EXTRA_MIN);
+      return { source: hub.id, target: n.id, distance };
+    });
 
-  const totalHeight = y - gap + marginTop;
-  svg.attr("viewBox", `0 0 ${width} ${Math.max(height, totalHeight)}`);
-
-  // 이어지는 선: 연속된 노드 사이
-  const linkData = nodes.slice(0, -1).map((_, i) => ({ source: nodes[i], target: nodes[i + 1] }));
-  g.insert("g", ":first-child")
-    .attr("stroke", "rgb(157, 0, 255)")
-    .attr("stroke-width", 1)
-    .attr("stroke-dasharray", "5, 5")
+  const link = linkG
     .selectAll("line")
-    .data(linkData)
-    .join("line")
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y + d.source.height / 2)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y - d.target.height / 2);
+    .data(links)
+    .join("line");
 
-  node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+  const sim = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.distance).strength(0.5))
+    .force("charge", d3.forceManyBody().strength(-120))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collide", d3.forceCollide(collideRadius).iterations(2))
+    .velocityDecay(0.55)
+    .alphaDecay(0.04);
+
+  // 드래그로 노드 고정
+  node.call(
+    d3.drag()
+      .on("start", (event, d) => {
+        if (!event.active) sim.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on("drag", (event, d) => {
+        d.fx = event.x; d.fy = event.y;
+      })
+      .on("end", (event, d) => {
+        if (!event.active) sim.alphaTarget(0);
+      })
+  );
 
   // 클릭하면 노트 패널 열기
   node.on("click", async (event, d) => {
+    if (d.isHub) return;
     const html = await loadNote(d.path);
     setNote(d.title, html);
   });
@@ -177,22 +210,18 @@ function renderGraph(data) {
     }
   });
 
-  /* ---------- 그래프(force) 레이아웃으로 되돌리려면: hub 추가 + force 시뮬레이션 사용 ----------
-  const hub = { id: "__hub__", title: "", path: null, isHub: true };
-  nodes.unshift(hub);
-  const links = nodes.filter(n => n.id !== hub.id).map(n => ({ source: hub.id, target: n.id }));
-  const sim = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id(d => d.id).distance(250))
-    .force("charge", d3.forceManyBody().strength(-200))
-    .force("center", d3.forceCenter(width/2, height/2))
-    .force("collide", d => Math.max(d.width, d.height)/2 + 12);
-  sim.on("tick", () => { link.attr(...); node.attr("transform", ...); });
-  node.call(d3.drag().on("start",...).on("drag",...).on("end",...));
-  ---------- */
+  sim.on("tick", () => {
+    link
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
+
+    node.attr("transform", d => `translate(${d.x},${d.y})`);
+  });
 }
 
 (async function main() {
   const data = await loadGraph();
-  window.__graphData = data;
   renderGraph(data);
 })();

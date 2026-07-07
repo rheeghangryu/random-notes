@@ -12,6 +12,7 @@ body {
   height: 100%;
   margin: 0;
   font-family: 'Hahmlet', serif;
+  word-break: keep-all;
 }
 
 a {
@@ -22,20 +23,6 @@ a {
 }
 
 /* Layout */
-.graph-nav {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  padding: 0.6rem 1rem;
-  background: #fff;
-  border-bottom: 1px solid rgba(76, 0, 131, 0.2);
-  font-size: 0.85rem;
-}
-
-.graph-nav a {
-  color: rgb(76, 0, 131);
-}
-
 #layout {
   height: 100%;
   position: relative;
@@ -102,4 +89,23 @@ a {
   font-size: 14px;
   color: rgb(157, 0, 255);
   line-height: 1.6;
+}
+
+/* ::source:: ... ::/source:: — 인용 출처 표기 */
+#noteContent .source {
+  margin-top: 0.6rem;
+  color: rgb(157, 0, 255);
+  font-size: 0.85em;
+}
+
+/* ::rheeghang:: ... ::/rheeghang:: — 본문/인용 사이에 직접 끼어드는 개인적인 말 */
+#noteContent .rheeghang {
+  margin: 0.8rem 0;
+  padding-left: 0.8rem;
+  border-left: 2px solid rgb(76, 0, 131);
+}
+
+/* 윗첨자: ^텍스트^ */
+#noteContent sup {
+  font-size: 0.75em;
 }
